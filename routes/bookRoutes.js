@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const { addBook, getAllBooks, getBookById, updateBook, deleteBook } = require('../controllers/bookController');
+const { borrowBook, returnBook } = require('../controllers/borrowController');
 const { protect } = require('../middleware/authMiddleware');
 const { authorizeRoles } = require('../middleware/roleMiddleware');
+const { bookValidation, mongoIdValidation } = require('../validators/validationRules');
+const { validate } = require('../middleware/validationMiddleware');
 
-// All routes require login
 router.get('/', protect, getAllBooks);
-router.get('/:id', protect, getBookById);
+router.get('/:id', protect, mongoIdValidation('id'), validate, getBookById);
+router.post('/', protect, authorizeRoles('librarian'), bookValidation, validate, addBook);
+router.put('/:id', protect, authorizeRoles('librarian'), mongoIdValidation('id'), validate, updateBook);
+router.delete('/:id', protect, authorizeRoles('librarian'), mongoIdValidation('id'), validate, deleteBook);
 
-// Librarian only
-router.post('/', protect, authorizeRoles('librarian'), addBook);
-router.put('/:id', protect, authorizeRoles('librarian'), updateBook);
-router.delete('/:id', protect, authorizeRoles('librarian'), deleteBook);
+router.post('/:id/borrow', protect, authorizeRoles('member'), mongoIdValidation('id'), validate, borrowBook);
+router.post('/:id/return', protect, authorizeRoles('member'), mongoIdValidation('id'), validate, returnBook);
 
 module.exports = router;
