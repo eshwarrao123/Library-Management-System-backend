@@ -1,0 +1,218 @@
+{
+  "info": {
+    "_postman_id": "a7f44d47-094d-4337-ad31-14bf6b61d05f",
+    "name": "Library Management System",
+    "description": "# Library Management System API\n\nA RESTful backend API for managing a library — built with **Node.js**, **Express**, and **MongoDB**. It supports user authentication, role-based access control, book catalog management, and member borrowing history.\n\n---\n\n## Base URL\n\n```\nhttp://localhost:5000\n```\n\n> All endpoints are prefixed with `/api`.\n\n---\n\n## Authentication Flow\n\nThis API uses **JWT (JSON Web Token)** based authentication.\n\n1. Call `POST /api/auth/login` with valid credentials.\n2. Receive a signed JWT token in the response.\n3. Include the token in the `Authorization` header for all protected requests:\n\n```\nAuthorization: Bearer <your_token_here>\n```\n\n> Tokens expire after **24 hours**. Re-authenticate to obtain a new token.\n\n---\n\n## Role-Based Access\n\n| Role | Description |\n|---|---|\n| **Public** | No authentication required |\n| **Member** | Authenticated user with `role: member` |\n| **Librarian** | Authenticated user with `role: librarian` — has elevated privileges |\n\n### Access Summary by Endpoint\n\n| Endpoint | Method | Access |\n|---|---|---|\n| `/api/auth/login` | POST | Public |\n| `/api/auth/register` | POST | Librarian only |\n| `/api/books` | GET | Member, Librarian |\n| `/api/members/` | GET | Librarian only |\n| `/api/members/me/books` | GET | Member, Librarian |\n\n---\n\n## Endpoints\n\n### 1. Login\n**`POST /api/auth/login`**\n\nAuthenticates a user and returns a JWT token.\n\n**Request Body:**\n```json\n{\n  \"email\": \"librarian@test.com\",\n  \"password\": \"yourlibrarypassword\"\n}\n```\n\n**Success Response (200):**\n```json\n{\n  \"success\": true,\n  \"token\": \"<jwt_token>\",\n  \"user\": {\n    \"_id\": \"...\",\n    \"name\": \"Eshwar\",\n    \"email\": \"librarian@test.com\",\n    \"role\": \"librarian\"\n  }\n}\n```\n\n---\n\n### 2. Register User\n**`POST /api/auth/register`**\n\nCreates a new user account. Restricted to librarians.\n\n**Required Headers:**\n```\nAuthorization: Bearer <librarian_token>\n```\n\n**Request Body:**\n```json\n{\n  \"name\": \"Rohith Kumar\",\n  \"email\": \"rohith@test.com\",\n  \"password\": \"password123\",\n  \"role\": \"member\"\n}\n```\n\n**Success Response (201):**\n```json\n{\n  \"success\": true,\n  \"user\": {\n    \"_id\": \"...\",\n    \"name\": \"Rohith Kumar\",\n    \"email\": \"rohith@test.com\",\n    \"role\": \"member\"\n  }\n}\n```\n\n---\n\n### 3. Get All Books\n**`GET /api/books`**\n\nReturns the full library book catalog.\n\n**Required Headers:**\n```\nAuthorization: Bearer <token>\n```\n\n**Success Response (200):**\n```json\n{\n  \"success\": true,\n  \"count\": 3,\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"title\": \"The Pragmatic Programmer\",\n      \"author\": \"David Thomas\",\n      \"isbn\": \"978-0201616224\",\n      \"category\": \"Programming\",\n      \"quantity\": 5\n    }\n  ]\n}\n```\n\n---\n\n### 4. Get All Members\n**`GET /api/members/`**\n\nReturns a list of all registered members. Restricted to librarians.\n\n**Required Headers:**\n```\nAuthorization: Bearer <librarian_token>\n```\n\n**Success Response (200):**\n```json\n{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"name\": \"Rohith Kumar\",\n      \"email\": \"rohith@test.com\",\n      \"role\": \"member\",\n      \"createdAt\": \"2026-06-28T10:56:20.489Z\"\n    }\n  ]\n}\n```\n\n---\n\n### 5. Get My Borrowed Books\n**`GET /api/members/me/books`**\n\nReturns the list of books currently borrowed by the authenticated user.\n\n**Required Headers:**\n```\nAuthorization: Bearer <token>\n```\n\n**Success Response (200):**\n```json\n{\n  \"success\": true,\n  \"count\": 1,\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"title\": \"Clean Code\",\n      \"author\": \"Robert C. Martin\",\n      \"borrowedAt\": \"2026-06-28T09:00:00.000Z\",\n      \"dueDate\": \"2026-07-05T09:00:00.000Z\"\n    }\n  ]\n}\n```\n\n> Returns an empty array if the user has no active borrowings.\n\n---\n\n## Error Responses\n\n| Status Code | Meaning |\n|---|---|\n| `400` | Bad Request — missing or invalid fields |\n| `401` | Unauthorized — token missing or invalid |\n| `403` | Forbidden — insufficient role permissions |\n| `404` | Not Found — resource does not exist |\n| `500` | Internal Server Error |\n\n---\n\n## Tech Stack\n\n| Layer | Technology |\n|---|---|\n| Runtime | Node.js |\n| Framework | Express.js |\n| Database | MongoDB (Mongoose ODM) |\n| Auth | JWT (jsonwebtoken) |\n| Password Hashing | bcrypt |",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55944066",
+    "_collection_link": "https://go.postman.co/collection/55944066-a7f44d47-094d-4337-ad31-14bf6b61d05f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "http://localhost:5000/api/auth/register",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{json_web_token_044q}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{json_web_token_044q}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"title\": \"The Pragmatic Programmer\",\r\n  \"author\": \"Eshwar\",\r\n  \"isbn\": \"978-0201616224\",\r\n  \"category\": \"Programming\",\r\n  \"quantity\": 5\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        },
+        "description": "Registers a new user account in the Library Management System. This endpoint is restricted to librarians only — the request must include a valid JWT Bearer token in the `Authorization` header belonging to a user with the `librarian` role.\n\n**Request Body (JSON):**\n- `name` *(string, required)* — Full name of the new user.\n- `email` *(string, required)* — Email address for the new account.\n- `password` *(string, required)* — Password for the new account.\n- `role` *(string, optional)* — Role to assign to the new user (e.g., `librarian` or `member`).\n\n**Authorization:** Bearer token required (`librarian` role).\n\n**Response:** Returns an error if the token is missing or if the authenticated user does not have the `librarian` role."
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/members/",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{json_web_token_0ky7}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/api/members/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "members",
+            ""
+          ]
+        },
+        "description": "Retrieves a list of all registered members in the system. Only accessible by users with the `librarian` role.\n\n**Method & URL:** `GET /api/members/`\n\n**Access:** Librarian only.\n\n**Required Headers:**\n- `Authorization: Bearer <token>` — A valid JWT token belonging to a `librarian` user.\n\n**Success Response (200):**\n```json\n{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"name\": \"Rohith Kumar\",\n      \"email\": \"rohith@test.com\",\n      \"role\": \"member\",\n      \"createdAt\": \"2026-06-28T10:56:20.489Z\"\n    },\n    {\n      \"_id\": \"...\",\n      \"name\": \"Eshwar\",\n      \"email\": \"librarian@test.com\",\n      \"role\": \"member\",\n      \"createdAt\": \"2026-06-28T11:01:38.547Z\"\n    }\n  ]\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/books",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/books",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "books"
+          ]
+        },
+        "description": "Retrieves the full catalog of books available in the library. Accessible by all authenticated users (both members and librarians).\n\n**Method & URL:** `GET /api/books`\n\n**Access:** Member, Librarian.\n\n**Required Headers:**\n- `Authorization: Bearer <token>` — A valid JWT token for any authenticated user.\n\n**Success Response (200):**\n```json\n{\n  \"success\": true,\n  \"count\": 3,\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"title\": \"The Pragmatic Programmer\",\n      \"author\": \"David Thomas\",\n      \"isbn\": \"978-0201616224\",\n      \"category\": \"Programming\",\n      \"quantity\": 5\n    }\n  ]\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/members/me/books",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer_token_0kwx}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/members/me/books",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "members",
+            "me",
+            "books"
+          ]
+        },
+        "description": "Retrieves the list of books currently borrowed by the authenticated member. Each member can only view their own borrowed books.\n\n**Method & URL:** `GET /api/members/me/books`\n\n**Access:** Member, Librarian (scoped to the token owner).\n\n**Required Headers:**\n- `Authorization: Bearer <token>` — A valid JWT token for the authenticated user.\n\n**Success Response (200):**\n```json\n{\n  \"success\": true,\n  \"count\": 1,\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"title\": \"Clean Code\",\n      \"author\": \"Robert C. Martin\",\n      \"borrowedAt\": \"2026-06-28T09:00:00.000Z\",\n      \"dueDate\": \"2026-07-05T09:00:00.000Z\"\n    }\n  ]\n}\n```\n\n**Notes:**\n- Returns an empty array if the user has no currently borrowed books.\n- The endpoint is self-scoped — it always returns books for the user identified by the token, not a specific member ID."
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/auth/login",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "Authenticates an existing user and returns a signed JWT token to be used for all protected routes.\n\n**Method & URL:** `POST /api/auth/login`\n\n**Access:** Public — no authentication required.\n\n**Request Body (JSON):**\n- `email` *(string, required)* — The registered email address of the user.\n- `password` *(string, required)* — The user's password.\n\n**Success Response (200):**\n```json\n{\n  \"success\": true,\n  \"token\": \"<jwt_token>\",\n  \"user\": {\n    \"_id\": \"...\",\n    \"name\": \"Eshwar\",\n    \"email\": \"librarian@test.com\",\n    \"role\": \"librarian\"\n  }\n}\n```\n\n**Notes:**\n- Copy the returned `token` value and use it as `Bearer <token>` in the `Authorization` header for all protected requests.\n- Tokens expire after 24 hours."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "json_web_token_044q",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_0faq",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0ky7",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_0q06",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_0kwx",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0pv2",
+      "secret": true
+    }
+  ]
+}
